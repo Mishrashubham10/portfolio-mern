@@ -1,0 +1,18 @@
+:root {
+  --bg: white;
+  --color: black;
+  --bgSoft: #f1f1f1;
+  --colorSoft: #ccc;
+}
+
+*, *::after, *::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'sans-serif';
+  background-color: var(--bg);
+  color: var(--color);
+}
