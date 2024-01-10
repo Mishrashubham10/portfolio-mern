@@ -1,8 +1,10 @@
+import AuthContextProvider from "./provider/AuthContextProvider";
+
 const App = () => {
   return (
-    <div>
+    <AuthContextProvider>
       <h1 className="bg-red-500">Personal Portfolio..</h1>
-    </div>
+    </AuthContextProvider>
   );
 };
 
