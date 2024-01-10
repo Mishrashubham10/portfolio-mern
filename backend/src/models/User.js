@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import mongooseAggregratePaginate from 'mongoose-aggregate-paginate-v2';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,5 +23,42 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+// ACCESS TOKEN
+userSchema.methods.generateAccessToken = async function () {
+  const token = jwt.sign(
+    {
+      id: this._id,
+      username: this.username,
+      email: this.email,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: ACCESS_TOKEN_EXPIRY }
+  );
+
+  return token;
+};
+
+// REFRESH TOKEN
+userSchema.methods.generateAccessToken = async function () {
+  const refresh = jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRY,
+  });
+
+  return refresh;
+};
+
+userSchema.plugin(mongooseAggregratePaginate);
 
 const User = mongoose.model('User', userSchema);
