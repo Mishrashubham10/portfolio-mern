@@ -4,6 +4,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
 
+// router imports
+import userRoutes from "./routes/user.route.js"
+
 const app = express();
 
 // MIDDLEWARES
@@ -17,5 +20,8 @@ app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
 app.use(express.static('public'));
 app.use(cookieParser());
+
+// route declarations
+app.use("/api/v1/users", userRoutes)
 
 export { app };
