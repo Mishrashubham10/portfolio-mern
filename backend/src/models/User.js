@@ -15,8 +15,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     message: {
-      type: String,
-      required: true,
+      type: String
     },
   },
   {
@@ -24,6 +23,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// HASHING PASSWORD WITH MONGOOSE PRE METHOD
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -62,3 +62,5 @@ userSchema.methods.generateAccessToken = async function () {
 userSchema.plugin(mongooseAggregratePaginate);
 
 const User = mongoose.model('User', userSchema);
+
+export default User;
