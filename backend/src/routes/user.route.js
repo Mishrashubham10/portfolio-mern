@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { register, login } from "../controllers/user.controller.js";
+import { accessToken, refreshToken } from "../middlewares/jwt.js";
 
 const router = Router();
 

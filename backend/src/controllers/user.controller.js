@@ -1,6 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import User from '../models/User.js';
+import bcrypt from "bcrypt";
 
 // REGISTER USER
 const register = asyncHandler(async (req, res) => {
@@ -16,7 +17,7 @@ const register = asyncHandler(async (req, res) => {
   const existedUser = await User.findOne({ email });
 
   if (existedUser) {
-    throw new ApiError(409, 'User with the email already exists');
+    throw new ApiError(409, 'Wrong credentials');
   }
 
   // create object and the save into the db
@@ -37,7 +38,13 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'All fields are required');
   }
 
-  const user = await User.findOne({ email }).select("-password -accessToken");
+  const user = await User.findOne({ email }).select('-password -accessToken');
+
+  const comparePwd = await bcrypt.compare(user.password, password)
+
+  if (!comparePwd) {
+    throw new ApiError(400, "Wrong credentials");
+  }
 
   if (!user) {
     throw new ApiError(403, 'User not found');
