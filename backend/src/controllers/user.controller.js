@@ -1,7 +1,7 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import User from '../models/User.js';
-import bcrypt from "bcrypt";
+import bcrypt from 'bcrypt';
 
 // REGISTER USER
 const register = asyncHandler(async (req, res) => {
@@ -38,19 +38,19 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'All fields are required');
   }
 
-  const user = await User.findOne({ email }).select('-password -accessToken');
+  const foundUser = await User.findOne({ email }).select(
+    '-password -accessToken'
+  );
 
-  const comparePwd = await bcrypt.compare(user.password, password)
+  const match = await bcrypt.compare(password, foundUser.password);
 
-  if (!comparePwd) {
-    throw new ApiError(400, "Wrong credentials");
-  }
+  if (!match) return res.status(401).json({ message: 'Unauthorized' });
 
-  if (!user) {
+  if (!foundUser) {
     throw new ApiError(403, 'User not found');
   }
 
-  res.status(201).json(user);
+  res.status(201).json(foundUser);
 });
 
 export { register, login };
