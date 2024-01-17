@@ -1,4 +1,3 @@
-import cookieParser from 'cookie-parser';
 import User from '../models/User';
 import { ApiError } from '../utils/ApiError';
 import { asyncHandler } from '../utils/asyncHandler';
@@ -49,20 +48,40 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (!match) return res.status(401).json({ message: 'Unauthorized' });
 
-  // GENERATING ACCESS AND REFRESH TOKENS
+  // GENERATING ACCESS
   const accessToken = jwt.sign(
-    { userId: user._id, email: user.email },
+    { userId: user._id, userEmail: user.email },
     process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: ACCESS_TOKEN_EXPIRY,
-    }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
   );
 
+  //   REFRESH TOKEN
   const refreshToken = jwt.sign(
-    { email: user.email },
+    { userId: user._id },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: REFRESH_TOKEN_EXPIRY }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   );
+
+  //   COOKIE OPTIONS
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+    maxAge: 10 * 24 * 60 * 60 * 1000,
+  };
+
+  res.cookie('jwt', refreshToken, options);
+
+  res.status(200).json({ accessToken });
+});
+
+// @desc Logout
+// @route POST /auth/logout
+// @access Public - just to clear cookie if exists
+const logout = asyncHandler(async (req, res) => {
+  const cookie = req.cookies;
+
+  if (!cookie?.jwt) return res.status(204);
 
   //   Cookie options
   const options = {
@@ -72,33 +91,9 @@ const loginUser = asyncHandler(async (req, res) => {
     maxAge: 10 * 24 * 60 * 60 * 1000,
   };
 
-  // Create secure cookie with refresh token
-  res.cookie('jwt', refreshToken, options);
-
-  // Send accessToken containing username and roles
-  res.status(200).json({ accessToken });
-});
-
-// @desc Logout
-// @route POST /auth/logout
-// @access Public - just to clear cookie if exists
-const logout = asyncHandler( async(req, res) => {
-    const cookie = req.cookies;
-
-    if (!cookie?.jwt) return res.status(204)
-
-    //   Cookie options
-  const options = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None',
-    maxAge: 10 * 24 * 60 * 60 * 1000,
-  };
-
   res.clearCookie('jwt', options);
 
-  res.status(200).json({message: "Clear Cookie"})
-
-})
+  res.status(200).json({ message: 'Clear Cookie' });
+});
 
 export { registerUser, loginUser };
