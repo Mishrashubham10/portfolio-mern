@@ -1,19 +1,19 @@
-import User from '../models/User';
-import { ApiError } from '../utils/ApiError';
-import { asyncHandler } from '../utils/asyncHandler';
+import User from '../models/User.js';
+import { ApiError } from '../utils/ApiError.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 // REGISTER USER
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, phoneNumber, fullName, username } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !phoneNumber || !fullName || !username) {
     throw new ApiError(400, 'All fields are required');
   }
 
   const duplicate = await User.findOne({
-    email,
+    $or: [{ username }, { email }],
   });
 
   if (duplicate) {
@@ -21,9 +21,12 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
+    username,
     email,
     password,
-  }).select('-password -accessToken');
+    fullName,
+    phoneNumber,
+  });
 
   res.status(200).json(user);
 });
@@ -33,46 +36,56 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new ApiError(400, 'All fields are required');
+    throw new ApiError(400, 'All fields required');
   }
 
-  // Check for email
-  const user = await User.findOne({ email }).select('-password');
+  // Find user with email address
+  const user = await User.findOne({ email }).select('-password -refreshToken');
+  console.log(user);
 
   if (!user) {
-    throw new ApiError(400, 'User not found');
+    throw new ApiError(404, 'User with the email not found');
   }
 
-  //   Checking users password
-  const match = await bcrypt.compare(password, foundUser.password);
+  // Compare the password of both user
+  const match = await bcrypt.compare(password, user.password);
 
-  if (!match) return res.status(401).json({ message: 'Unauthorized' });
+  if (!match) {
+    throw new ApiError(404, 'Unauthorized request!');
+  }
 
-  // GENERATING ACCESS
+  // TOKENS
+  // ACCESS TOKEN
   const accessToken = jwt.sign(
     { userId: user._id, userEmail: user.email },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    }
   );
 
-  //   REFRESH TOKEN
+  // REFRESH TOKEN
   const refreshToken = jwt.sign(
     { userId: user._id },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+    { expiresIn: process.envREFRESH_TOKEN_EXPIRY }
   );
 
-  //   COOKIE OPTIONS
+  // Setting Cookies
   const options = {
     httpOnly: true,
     secure: true,
     sameSite: 'None',
-    maxAge: 10 * 24 * 60 * 60 * 1000,
+    maxAge: 10 * 24 * 60 * 60 * 60,
   };
 
-  res.cookie('jwt', refreshToken, options);
-
-  res.status(200).json({ accessToken });
+  res
+    .status(200)
+    .cookie('accessToken', accessToken, options)
+    .cookie('refreshToken', refreshToken, options);
+  json({
+    message: `User with the email ${user.email} logged in successfully`,
+  });
 });
 
 // @desc Logout

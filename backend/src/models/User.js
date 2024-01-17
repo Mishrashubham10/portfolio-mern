@@ -26,9 +26,6 @@ const userSchema = new mongoose.Schema(
       type: Number,
       required: [true, "Phone number is required"],
     },
-    message: {
-      type: String
-    },
   },
   {
     timestamps: true,
