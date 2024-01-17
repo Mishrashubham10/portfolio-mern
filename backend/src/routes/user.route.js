@@ -1,12 +1,23 @@
-import { Router } from "express";
-import { register, login } from "../controllers/user.controller.js";
-import { accessToken, refreshToken } from "../middlewares/jwt.js";
+import { Router } from 'express';
+import {
+  getUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+} from '../controllers/user.controller.js';
 
 const router = Router();
 
-// REGISTER ROUTE
-router.route("/register").post(register);
-// LOGIN ROUTE
-router.route("/login").post(login);
+// GET USERS
+router.route('/').get(getUsers);
+// CREATE USER
+router.route('/').post(createUser);
+// GET USER
+router.route('/:id').get(getUser);
+// UPDATE USER
+router.route('/:id').put(updateUser);
+// DELETE USER
+router.route('/:id').delete(deleteUser);
 
-export default router
+export default router;

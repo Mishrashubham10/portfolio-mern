@@ -96,4 +96,4 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Clear Cookie' });
 });
 
-export { registerUser, loginUser };
+export { registerUser, loginUser, logout };

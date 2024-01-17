@@ -1,56 +1,103 @@
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import User from '../models/User.js';
-import bcrypt from 'bcrypt';
 
-// REGISTER USER
-const register = asyncHandler(async (req, res) => {
-  // take user information from frontend
-  const { email, password } = req.body;
+// @desc Get all users
+// @route GET /users
+// @access Private
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find().select('-password').lean();
 
-  // check for validation
-  if (!email || !password) {
-    throw new ApiError(400, 'All fields are required');
+  if (!users.length) {
+    throw new ApiError(400, 'No users found');
   }
 
-  // check for duplicates : username, email
-  const existedUser = await User.findOne({ email });
+  res.status(200).json(users);
+});
 
-  if (existedUser) {
-    throw new ApiError(409, 'Wrong credentials');
+// @desc Get user
+// @route GET /users/:id
+// @access Private
+const getUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new ApiError(401, 'Id required');
   }
 
-  // create object and the save into the db
+  const user = await User.findById({ id }).select('-password -refreshToken');
+
+  if (!user) {
+    throw new ApiError(400, 'User not found');
+  }
+
+  res.status(201).json(user);
+});
+
+// @desc Create user
+// @route POST /users
+// @access Private
+const createUser = asyncHandler(async (req, res) => {
+  const { username, email, password, fullName, phoneNumber } = req.body;
+
+  if (!username || !email || !password || !fullName || !phoneNumber) {
+    throw new ApiError(404, 'All fields required');
+  }
+
   const user = await User.create({
     email,
     password,
-  });
+  })
+    .lean()
+    .exec();
 
-  // send the res back
-  res.status(200).json(res);
-});
-
-// Login USER
-const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    throw new ApiError(400, 'All fields are required');
+  if (!user) {
+    throw new ApiError(404, 'Something went wrong with creating user!');
   }
 
-  const foundUser = await User.findOne({ email }).select(
-    '-password -accessToken'
-  );
-
-  const match = await bcrypt.compare(password, foundUser.password);
-
-  if (!match) return res.status(401).json({ message: 'Unauthorized' });
-
-  if (!foundUser) {
-    throw new ApiError(403, 'User not found');
-  }
-
-  res.status(201).json(foundUser);
+  res.status(201).json(user);
 });
 
-export { register, login };
+// @desc Update user
+// @route PUT /users/:id
+// @access Private
+const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new ApiError(400, 'Id required');
+  }
+
+  const user = await User.findByIdAndUpdate(id).exec();
+
+  if (!user) {
+    throw new ApiError(404, 'Something wrong with updating user');
+  }
+
+  res
+    .status(201)
+    .json({ message: `User with ${user.username} updated successfully` });
+});
+
+// @desc Delete user
+// @route DELETE /users/:id
+// @access Private
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new ApiError(400, 'Id required');
+  }
+
+  const user = await User.findByIdAndDelete(id, { new: true });
+
+  if (!user) {
+    throw new ApiError(404, 'Someting wrong with deleting user');
+  }
+
+  res
+    .status(200)
+    .json({ message: `User with ${user.username} deleted successfully` });
+});
+
+export { getUsers, getUser, createUser, updateUser, deleteUser };
