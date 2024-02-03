@@ -1,10 +1,8 @@
-import AuthContextProvider from "./provider/AuthContextProvider";
+import Navbar from "./components/navbar/Navbar";
 
 const App = () => {
   return (
-    <AuthContextProvider>
-      <h1 className="bg-red-500">Personal Portfolio..</h1>
-    </AuthContextProvider>
+    <Navbar />
   );
 };
 
