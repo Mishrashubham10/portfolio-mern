@@ -34,30 +34,6 @@ const getUser = asyncHandler(async (req, res) => {
   res.status(201).json(user);
 });
 
-// @desc Create user
-// @route POST /users
-// @access Private
-const createUser = asyncHandler(async (req, res) => {
-  const { username, email, password, fullName, phoneNumber } = req.body;
-
-  if (!username || !email || !password || !fullName || !phoneNumber) {
-    throw new ApiError(404, 'All fields required');
-  }
-
-  const user = await User.create({
-    email,
-    password,
-  })
-    .lean()
-    .exec();
-
-  if (!user) {
-    throw new ApiError(404, 'Something went wrong with creating user!');
-  }
-
-  res.status(201).json(user);
-});
-
 // @desc Update user
 // @route PUT /users/:id
 // @access Private
@@ -68,7 +44,11 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Id required');
   }
 
-  const user = await User.findByIdAndUpdate(id).exec();
+  const user = await User.findByIdAndUpdate(
+    id,
+    { $set: req.body },
+    { new: true }
+  ).exec();
 
   if (!user) {
     throw new ApiError(404, 'Something wrong with updating user');
@@ -100,4 +80,4 @@ const deleteUser = asyncHandler(async (req, res) => {
     .json({ message: `User with ${user.username} deleted successfully` });
 });
 
-export { getUsers, getUser, createUser, updateUser, deleteUser };
+export { getUsers, getUser, updateUser, deleteUser };
