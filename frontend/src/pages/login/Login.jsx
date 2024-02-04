@@ -11,7 +11,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await axios.post('/users', {
+    const res = await axios.post('http://localhost:3000/api/v1/auth/login', {
       header: {
         'Content-Type': 'application/json',
       },
