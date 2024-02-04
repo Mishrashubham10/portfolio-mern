@@ -1,0 +1,29 @@
+footer {
+  margin-top: 3.125rem;
+  border-top-right-radius: 2rem;
+  border-top-left-radius: 2rem;
+  background-color: purple;
+}
+
+.hr {
+  border: 0;
+  height: 1px;
+  width: 90%;
+  margin: 1rem auto;
+  background-color: lightgray;
+}
+
+.footerTop {
+    color: white;
+}
+
+.footerBottom {
+    color: white;
+}
+
+/* Responsive */
+@media screen and (max-width: 475px) {
+    footer {
+        display: flex !important;
+    }
+}

@@ -1,9 +1,9 @@
-import "./navbar.css";
+import './navbar.css';
 import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
-    <nav className="navbar">
+    <nav className="navbar bg-white/10 shadow-md w-[100%] shadow-black">
       <h1 className="navHead">shubham@dev.</h1>
       <ul className="navLinks">
         <li className="navLink">
