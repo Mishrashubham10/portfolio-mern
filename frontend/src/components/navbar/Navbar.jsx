@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
-    <nav className="navbar bg-white/10 shadow-md w-[100%] shadow-black">
+    <nav className="navbar bg-white/10 shadow-md w-[100%] shadow-black z-10">
       <h1 className="navHead">shubham@dev.</h1>
       <ul className="navLinks">
         <li className="navLink">
@@ -20,6 +20,9 @@ const Navbar = () => {
         </li>
         <li className="navLink">
           <Link to="/login">Login</Link>
+        </li>
+        <li className="navLink">
+          <Link to="/register">Register</Link>
         </li>
       </ul>
     </nav>

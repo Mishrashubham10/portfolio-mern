@@ -1,8 +1,8 @@
 footer {
-  margin-top: 3.125rem;
   border-top-right-radius: 2rem;
   border-top-left-radius: 2rem;
-  background-color: purple;
+  background-color: #6962AD;
+  border-color: transparent;
 }
 
 .hr {
