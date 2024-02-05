@@ -1,12 +1,19 @@
 .navbar {
   height: 10vh;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 1rem 0;
+  width: 100%;
   position: sticky;
   top: 0;
-  z-index: 999;
+  z-index: 99;
+}
+
+.navContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  margin: 0 auto;
+  padding: 1rem 0;
+  z-index: 99;
 }
 
 .navHead {

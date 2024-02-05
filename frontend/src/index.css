@@ -5,7 +5,7 @@
 :root {
   --bg: white;
   --color: black;
-  --bgSoft: #f1f1f1;
+  --bgSoft: #0C2D57;
   --colorSoft: #ccc;
 }
 
@@ -17,8 +17,8 @@
 
 html, body {
   font-family: 'sans-serif';
-  background-color: var(--bg);
-  color: var(--color);
+  background-color: var(--bgSoft);
+  color: var(--colorSoft);
 }
 
 a {
