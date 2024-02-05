@@ -6,27 +6,22 @@ import jwt from 'jsonwebtoken';
 
 // REGISTER USER
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, password, username } = req.body;
+  const { email, password } = req.body;
 
-  if (!email || !password || !username) {
-    throw new ApiError(400, 'All fields are required');
-  }
+  if (!email || !password)
+    return res.status(404).json({ message: 'All fields must be filled' });
 
-  const duplicate = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  // Hashing password
+  const hashedPwd = await bcrypt.hash(password, 10);
 
-  if (duplicate) {
-    throw new ApiError(400, 'User with the email address already exists');
-  }
-
-  const user = await User.create({
-    username,
+  const userObj = {
     email,
-    password
-  });
+    password: hashedPwd,
+  };
 
-  res.status(200).json(user);
+  const user = await User.create(userObj);
+
+  res.status(200).json(user, { message: 'User has been created' });
 });
 
 // LOGIN USER
